@@ -4,8 +4,10 @@ enum Description {
   GOLD_FEMALE_SUBCATEGORY,
   GOLD_MENS_SUBCATEGORY;
 
-  factory Description.fromJson(String json) => Description.values
-      .firstWhere((e) => e.toString().split('.').last == json);
+  factory Description.fromJson(String json) => Description.values.firstWhere(
+      (e) => e.toString().split('.').last == json,
+      orElse: () => Description
+          .GOLD_FEMALE_SUBCATEGORY); // Defaulting to GOLD_FEMALE_SUBCATEGORY if not found
 
   String toJson() => toString().split('.').last;
 }
@@ -15,7 +17,8 @@ enum Gender {
   WOMEN;
 
   factory Gender.fromJson(String json) =>
-      Gender.values.firstWhere((e) => e.toString().split('.').last == json);
+      Gender.values.firstWhere((e) => e.toString().split('.').last == json,
+          orElse: () => Gender.MEN); // Defaulting to MEN
 
   String toJson() => toString().split('.').last;
 }
@@ -23,8 +26,9 @@ enum Gender {
 enum Wholeseller {
   BANSAL;
 
-  factory Wholeseller.fromJson(String json) => Wholeseller.values
-      .firstWhere((e) => e.toString().split('.').last == json);
+  factory Wholeseller.fromJson(String json) =>
+      Wholeseller.values.firstWhere((e) => e.toString().split('.').last == json,
+          orElse: () => Wholeseller.BANSAL); // Defaulting to BANSAL
 
   String toJson() => toString().split('.').last;
 }
