@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:gehnaorg/features/add_product/presentation/bloc/add_product_bloc.dart';
 import 'features/add_product/data/repositories/category_repository.dart';
 import 'features/add_product/data/repositories/subcategory_repository.dart';
@@ -25,13 +26,18 @@ class MyApp extends StatelessWidget {
           create: (_) => DependencyInjection.resolve<AddProductBloc>(),
         ),
       ],
-      child: MaterialApp(
-        title: 'GehnaMall',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          scaffoldBackgroundColor: Colors.grey[100],
-        ),
-        home: AddProductPage(),
+      child: ScreenUtilInit(
+        designSize: Size(375, 812), // Set your design size (common iPhone size)
+        builder: (context, child) {
+          return MaterialApp(
+            title: 'GehnaMall',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+              scaffoldBackgroundColor: Colors.grey[100],
+            ),
+            home: AddProductPage(),
+          );
+        },
       ),
     );
   }
