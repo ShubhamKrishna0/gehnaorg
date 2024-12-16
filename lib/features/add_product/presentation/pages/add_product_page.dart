@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gehnaorg/data/models/category.dart';
-import 'package:gehnaorg/data/repositories/category_repository.dart';
+import 'package:gehnaorg/features/add_product/data/models/category.dart';
+import 'package:gehnaorg/features/add_product/data/repositories/category_repository.dart';
 import 'package:gehnaorg/features/add_product/presentation/bloc/add_product_bloc.dart';
 
 class AddProductPage extends StatelessWidget {

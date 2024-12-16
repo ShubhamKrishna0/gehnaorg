@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import '../models/category.dart';
+import 'package:gehnaorg/features/add_product/data/models/category.dart';
 
 class CategoryApi {
   final Dio _dio;

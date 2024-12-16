@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:gehnaorg/data/models/category.dart';
+import 'package:gehnaorg/features/add_product/data/models/category.dart';
 
 class CategoryRepository {
   final Dio dio;
