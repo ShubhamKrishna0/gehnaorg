@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
+import 'package:gehnaorg/features/add_product/data/repositories/login_repository.dart';
 import 'package:gehnaorg/features/add_product/presentation/bloc/add_product_bloc.dart';
-import 'features/add_product/data/repositories/category_repository.dart';
-import 'features/add_product/data/repositories/subcategory_repository.dart';
-import 'features/add_product/presentation/pages/add_product_page.dart';
+import 'package:gehnaorg/features/add_product/presentation/bloc/login_bloc.dart'; // Import LoginBloc
+import 'package:gehnaorg/features/add_product/presentation/pages/add_product_page.dart';
+import 'package:gehnaorg/features/add_product/presentation/pages/home_page.dart';
+import 'package:gehnaorg/features/add_product/presentation/pages/login_page.dart';
+
 import 'app/di_container.dart'; // Dependency Injection
 
 void main() async {
@@ -22,6 +24,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        // Provide the LoginBloc at the top level
+        BlocProvider(
+          create: (_) => LoginBloc(
+              loginRepository: DependencyInjection.resolve<LoginRepository>()),
+        ),
+        // Provide the AddProductBloc
         BlocProvider(
           create: (_) => DependencyInjection.resolve<AddProductBloc>(),
         ),
@@ -35,7 +43,11 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.blue,
               scaffoldBackgroundColor: Colors.grey[100],
             ),
-            home: AddProductPage(),
+            home: LoginPage(), // Show LoginPage first
+            routes: {
+              '/add_product': (context) => AddProductPage(),
+              '/home': (context) => HomePage(), // Add a route for HomePage
+            },
           );
         },
       ),

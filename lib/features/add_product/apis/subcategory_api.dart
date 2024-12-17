@@ -14,7 +14,7 @@ class SubCategoryApi {
     try {
       final response = await _dio.get(
         'http://3.110.34.172:8080/api/subCategories/$categoryCode',
-        queryParameters: {'gender': genderCode, 'wholeseller': wholeseller},
+        queryParameters: {'genderCode': genderCode, 'wholeseller': wholeseller},
       );
       if (response.statusCode == 200) {
         return (response.data as List)

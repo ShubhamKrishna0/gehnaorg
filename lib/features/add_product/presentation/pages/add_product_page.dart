@@ -57,6 +57,44 @@ class _AddProductPageState extends State<AddProductPage> {
     });
   }
 
+  // Function to submit the product data
+  Future<void> _submitProduct() async {
+    if (_formKey.currentState!.validate()) {
+      final dio = Dio();
+      final productData = {
+        'name': _productNameController.text,
+        'description': _descriptionController.text,
+        'wastage': double.parse(_wastageController.text),
+        'weight': double.parse(_weightController.text),
+        'category': _selectedCategory?.categoryName,
+        'gender': _selectedGender == 1 ? 'Male' : 'Female',
+        'karat': _selectedKarat,
+        'images': _selectedImages.map((img) => img.path).toList(),
+      };
+
+      try {
+        final response = await dio.post(
+          'http://3.110.34.172:8080/admin/upload/Products', // Replace with your API endpoint
+          data: FormData.fromMap(productData),
+        );
+
+        // Print the response to the console
+        print('Backend Response: ${response.data}');
+
+        // Show a success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Product added successfully!')),
+        );
+      } catch (e) {
+        // Print any error to the console
+        print('Error: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add product. Please try again.')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dio = Dio();
@@ -266,7 +304,6 @@ class _AddProductPageState extends State<AddProductPage> {
                       ),
                     ),
 
-                    // Image Picker
                     // Image Picker Section
                     Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -322,6 +359,7 @@ class _AddProductPageState extends State<AddProductPage> {
                         ],
                       ),
                     ),
+
                     // Karat Selection Dropdown
                     Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -346,25 +384,7 @@ class _AddProductPageState extends State<AddProductPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            // Logic to save the data
-                            final productData = {
-                              'name': _productNameController.text,
-                              'description': _descriptionController.text,
-                              'wastage': double.parse(_wastageController.text),
-                              'weight': double.parse(_weightController.text),
-                              'category': _selectedCategory?.categoryName,
-                              'gender':
-                                  _selectedGender == 1 ? 'Male' : 'Female',
-                              'karat': _selectedKarat,
-                              'images': _selectedImages
-                                  .map((img) => img.path)
-                                  .toList(),
-                            };
-                            // Process the product data (e.g., submit to the server)
-                          }
-                        },
+                        onPressed: _submitProduct,
                         child: Text('Add Product'),
                       ),
                     ),

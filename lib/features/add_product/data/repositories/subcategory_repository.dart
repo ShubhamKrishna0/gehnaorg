@@ -16,7 +16,7 @@ class SubCategoryRepository {
         'http://3.110.34.172:8080/api/subCategories/$categoryCode',
         queryParameters: {
           'wholeseller': wholeseller,
-          'gender': genderCode,
+          'genderCode': genderCode,
         },
       );
 
