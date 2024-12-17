@@ -12,14 +12,14 @@ class SubCategoryBloc extends Cubit<SubCategoryState> {
 
   Future<void> loadSubCategories({
     required int categoryCode,
-    required int genderCode,
+    required int? genderCode, // Make genderCode nullable
     required String wholeseller,
   }) async {
     try {
       emit(SubCategoryLoading());
       final subcategories = await subCategoryRepository.fetchSubCategories(
         categoryCode: categoryCode,
-        genderCode: genderCode,
+        genderCode: genderCode, // Pass nullable genderCode
         wholeseller: wholeseller,
       );
       emit(SubCategoryLoaded(subcategories));

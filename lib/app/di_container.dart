@@ -28,14 +28,14 @@ class DependencyInjection {
       () => SubCategoryRepository(_getIt<Dio>()),
     );
 
-    // Register Product API and Repository with Dio
-    _getIt.registerLazySingleton<ProductApi>(
-      () => ProductApi(_getIt<Dio>()),
-    );
+    // // Register Product API and Repository with Dio
+    // _getIt.registerLazySingleton<ProductApi>(
+    //   () => ProductApi(_getIt<Dio>()),
+    // );
 
-    _getIt.registerLazySingleton<ProductRepository>(
-      () => ProductRepository(_getIt<ProductApi>()),
-    );
+    // _getIt.registerLazySingleton<ProductRepository>(
+    //   () => ProductRepository(_getIt<ProductApi>()),
+    // );
 
     // Register Login API and Repository
     _getIt.registerLazySingleton<LoginApi>(

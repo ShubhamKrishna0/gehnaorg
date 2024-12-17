@@ -1,3 +1,5 @@
+//lib\features\add_product\data\models\category.dart
+
 import 'package:equatable/equatable.dart';
 
 class Category extends Equatable {

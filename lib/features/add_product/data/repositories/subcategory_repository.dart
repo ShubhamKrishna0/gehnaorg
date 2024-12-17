@@ -9,15 +9,19 @@ class SubCategoryRepository {
   Future<List<SubCategory>> fetchSubCategories({
     required int categoryCode,
     required String wholeseller,
-    required int genderCode,
+    required int? genderCode, // Make genderCode nullable
   }) async {
     try {
+      // Check if genderCode is null and adjust accordingly
+      final queryParams = {
+        'wholeseller': wholeseller,
+        if (genderCode != null)
+          'genderCode': genderCode, // Only add genderCode if it's not null
+      };
+
       final response = await dio.get(
         'http://3.110.34.172:8080/api/subCategories/$categoryCode',
-        queryParameters: {
-          'wholeseller': wholeseller,
-          'genderCode': genderCode,
-        },
+        queryParameters: queryParams,
       );
 
       if (response.statusCode == 200) {

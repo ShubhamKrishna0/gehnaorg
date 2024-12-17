@@ -7,6 +7,7 @@ import 'package:gehnaorg/features/add_product/presentation/bloc/login_bloc.dart'
 import 'package:gehnaorg/features/add_product/presentation/pages/add_product_page.dart';
 import 'package:gehnaorg/features/add_product/presentation/pages/home_page.dart';
 import 'package:gehnaorg/features/add_product/presentation/pages/login_page.dart';
+import 'package:gehnaorg/features/add_product/presentation/pages/profile_page.dart';
 
 import 'app/di_container.dart'; // Dependency Injection
 
@@ -43,10 +44,21 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.blue,
               scaffoldBackgroundColor: Colors.grey[100],
             ),
-            home: LoginPage(), // Show LoginPage first
+            home: BlocBuilder<LoginBloc, LoginState>(
+              builder: (context, state) {
+                if (state is LoginSuccess) {
+                  // If login is successful, pass the state to home page
+                  return HomePage();
+                } else {
+                  // Otherwise, show the LoginPage
+                  return LoginPage();
+                }
+              },
+            ),
             routes: {
               '/add_product': (context) => AddProductPage(),
-              '/home': (context) => HomePage(), // Add a route for HomePage
+              '/home': (context) => HomePage(),
+              '/profile': (context) => ProfilePage(),
             },
           );
         },

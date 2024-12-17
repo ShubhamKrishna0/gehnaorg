@@ -1,3 +1,4 @@
+// login_bloc.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gehnaorg/features/add_product/data/models/login.dart';
 import 'package:gehnaorg/features/add_product/data/repositories/login_repository.dart';
@@ -22,15 +23,4 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       }
     });
   }
-
-  // Optionally, you can define the login method as well (but it is now handled inside the on<LoginUserEvent>):
-  // Future<void> login(String email, String password) async {
-  //   try {
-  //     emit(LoginLoading());
-  //     final loginResponse = await loginRepository.login(email, password);
-  //     emit(LoginSuccess(loginResponse));
-  //   } catch (e) {
-  //     emit(LoginFailure(e.toString()));
-  //   }
-  // }
 }
