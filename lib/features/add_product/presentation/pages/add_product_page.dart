@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dio/dio.dart';
 import 'package:gehnaorg/features/add_product/data/models/category.dart';
 import 'package:gehnaorg/features/add_product/data/models/subcategory.dart';
 import 'package:gehnaorg/features/add_product/data/repositories/category_repository.dart';
@@ -26,22 +26,34 @@ class _AddProductPageState extends State<AddProductPage> {
   Category? _selectedCategory;
   int? _selectedGender;
   String? _selectedKarat = '18K';
-  XFile? _selectedImage;
 
   final ImagePicker _picker = ImagePicker();
+  List<XFile> _selectedImages = [];
 
-  // Function to pick an image
-  Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _selectedImage = image;
-    });
+  // Function to pick images from gallery
+  Future<void> _pickImages(ImageSource source) async {
+    final List<XFile>? pickedImages = await _picker.pickMultiImage();
+    if (pickedImages != null) {
+      setState(() {
+        _selectedImages.addAll(pickedImages);
+      });
+    }
   }
 
-  // Function to delete the selected image
-  void _deleteImage() {
+  // Function to capture an image from camera
+  Future<void> _captureImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    if (image != null) {
+      setState(() {
+        _selectedImages.add(image);
+      });
+    }
+  }
+
+  // Function to remove a selected image
+  void _removeImage(int index) {
     setState(() {
-      _selectedImage = null;
+      _selectedImages.removeAt(index);
     });
   }
 
@@ -255,30 +267,61 @@ class _AddProductPageState extends State<AddProductPage> {
                     ),
 
                     // Image Picker
+                    // Image Picker Section
                     Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ElevatedButton(
-                            onPressed: _pickImage,
-                            child: Text('Pick Image'),
+                          Text(
+                            'Select Images',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                          if (_selectedImage != null)
-                            IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: _deleteImage,
+                          Row(
+                            children: [
+                              ElevatedButton(
+                                onPressed: () =>
+                                    _pickImages(ImageSource.gallery),
+                                child: Text('Pick from Gallery'),
+                              ),
+                              SizedBox(width: 10),
+                              ElevatedButton(
+                                onPressed: _captureImage,
+                                child: Text('Capture with Camera'),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          if (_selectedImages.isNotEmpty)
+                            Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: List.generate(
+                                _selectedImages.length,
+                                (index) {
+                                  return Stack(
+                                    alignment: Alignment.topRight,
+                                    children: [
+                                      Image.file(
+                                        File(_selectedImages[index].path),
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.cancel,
+                                            color: Colors.red),
+                                        onPressed: () => _removeImage(index),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
                             ),
                         ],
                       ),
                     ),
-                    if (_selectedImage != null)
-                      Image.file(
-                        File(_selectedImage!.path),
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
-
                     // Karat Selection Dropdown
                     Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -315,7 +358,9 @@ class _AddProductPageState extends State<AddProductPage> {
                               'gender':
                                   _selectedGender == 1 ? 'Male' : 'Female',
                               'karat': _selectedKarat,
-                              'image': _selectedImage?.path,
+                              'images': _selectedImages
+                                  .map((img) => img.path)
+                                  .toList(),
                             };
                             // Process the product data (e.g., submit to the server)
                           }
