@@ -6,7 +6,8 @@ class ProductApi {
   ProductApi(this.dio);
 
   Future<void> uploadProduct(
-      String categoryCode, String subCategoryCode, String identity) async {
+      String categoryCode, String subCategoryCode) async {
+    final identity = "BANSAL";
     final url = 'http://3.110.34.172:8080/admin/upload/Products'
         '?category=$categoryCode&subCategory=$subCategoryCode&wholeseller=$identity';
 

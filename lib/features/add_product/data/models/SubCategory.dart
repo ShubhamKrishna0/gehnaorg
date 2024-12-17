@@ -34,20 +34,6 @@ enum Wholeseller {
 }
 
 class SubCategory extends Equatable {
-  final int subcategoryId;
-  final String subcategoryName;
-  final int subcategoryCode;
-  final int categoryCode;
-  final Description description;
-  final int price;
-  final String exfield1;
-  final String? exfield2; // Nullable field
-  final Gender gender;
-  final int genderCode;
-  final DateTime createDate;
-  final DateTime modiDate;
-  final Wholeseller wholeseller;
-
   const SubCategory({
     required this.subcategoryId,
     required this.subcategoryName,
@@ -83,6 +69,37 @@ class SubCategory extends Equatable {
     );
   }
 
+  final int categoryCode;
+  final DateTime createDate;
+  final Description description;
+  final String exfield1;
+  final String? exfield2; // Nullable field
+  final Gender gender;
+  final int genderCode;
+  final DateTime modiDate;
+  final int price;
+  final int subcategoryCode;
+  final int subcategoryId;
+  final String subcategoryName;
+  final Wholeseller wholeseller;
+
+  @override
+  List<Object?> get props => [
+        subcategoryId,
+        subcategoryName,
+        subcategoryCode,
+        categoryCode,
+        description,
+        price,
+        exfield1,
+        exfield2,
+        gender,
+        genderCode,
+        createDate,
+        modiDate,
+        wholeseller,
+      ];
+
   // Method for JSON serialization
   Map<String, dynamic> toJson() {
     return {
@@ -101,21 +118,4 @@ class SubCategory extends Equatable {
       'wholeseller': wholeseller.toJson(),
     };
   }
-
-  @override
-  List<Object?> get props => [
-        subcategoryId,
-        subcategoryName,
-        subcategoryCode,
-        categoryCode,
-        description,
-        price,
-        exfield1,
-        exfield2,
-        gender,
-        genderCode,
-        createDate,
-        modiDate,
-        wholeseller,
-      ];
 }

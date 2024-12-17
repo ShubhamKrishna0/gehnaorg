@@ -24,6 +24,7 @@ class _AddProductPageState extends State<AddProductPage> {
   final _weightController = TextEditingController();
 
   Category? _selectedCategory;
+  SubCategory? _selectedSubCategory;
   int? _selectedGender;
   String? _selectedKarat = '18K';
 
@@ -33,15 +34,28 @@ class _AddProductPageState extends State<AddProductPage> {
   // Function to pick images from gallery
   Future<void> _pickImages(ImageSource source) async {
     final List<XFile>? pickedImages = await _picker.pickMultiImage();
-    if (pickedImages != null) {
+    if (pickedImages != null &&
+        _selectedImages.length + pickedImages.length <= 7) {
       setState(() {
         _selectedImages.addAll(pickedImages);
       });
+    } else {
+      // Show an error message if more than 7 images are selected
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You can select a maximum of 7 images.')),
+      );
     }
   }
 
   // Function to capture an image from camera
   Future<void> _captureImage() async {
+    if (_selectedImages.length >= 7) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You can select a maximum of 7 images.')),
+      );
+      return;
+    }
+
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
     if (image != null) {
       setState(() {
@@ -57,39 +71,99 @@ class _AddProductPageState extends State<AddProductPage> {
     });
   }
 
-  // Function to submit the product data
   Future<void> _submitProduct() async {
     if (_formKey.currentState!.validate()) {
+      // Check if at least 1 image is selected
+      if (_selectedImages.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please select at least 1 image.')),
+        );
+        return;
+      }
+
+      // Check if the number of images exceeds 7
+      if (_selectedImages.length > 7) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('You can select a maximum of 7 images.')),
+        );
+        return;
+      }
+
       final dio = Dio();
-      final productData = {
-        'name': _productNameController.text,
-        'description': _descriptionController.text,
-        'wastage': double.parse(_wastageController.text),
-        'weight': double.parse(_weightController.text),
-        'category': _selectedCategory?.categoryName,
-        'gender': _selectedGender == 1 ? 'Male' : 'Female',
-        'karat': _selectedKarat,
-        'images': _selectedImages.map((img) => img.path).toList(),
-      };
+
+      // Check if required fields are selected
+      if (_selectedCategory == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please select a category')),
+        );
+        return;
+      }
+      // Check if subcategory is selected
+      if (_selectedSubCategory == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please select a subcategory')),
+        );
+        return;
+      }
+
+      final String categoryCode = _selectedCategory!.categoryCode.toString();
+      final String subCategoryCode =
+          _selectedSubCategory!.subcategoryCode.toString();
+
+      final String identity = 'BANSAL'; // Fixed identity
+
+      final String url = 'http://3.110.34.172:8080/admin/upload/Products'
+          '?category=$categoryCode&subCategory=$subCategoryCode&wholeseller=$identity';
 
       try {
+        // Prepare image files for upload
+        List<MultipartFile> imageFiles = await Future.wait(
+          _selectedImages.map(
+            (image) => MultipartFile.fromFile(image.path, filename: image.name),
+          ),
+        );
+
+        // Form Data
+        final formData = FormData.fromMap({
+          'name': _productNameController.text,
+          'description': _descriptionController.text,
+          'wastage': double.parse(_wastageController.text),
+          'weight': double.parse(_weightController.text),
+          'karat': _selectedKarat,
+          'gender': _selectedGender == 1 ? 'Male' : 'Female',
+          'images': imageFiles,
+        });
+
+        // API Request
         final response = await dio.post(
-          'http://3.110.34.172:8080/admin/upload/Products', // Replace with your API endpoint
-          data: FormData.fromMap(productData),
+          url,
+          data: formData,
         );
 
-        // Print the response to the console
-        print('Backend Response: ${response.data}');
-
-        // Show a success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Product added successfully!')),
-        );
+        if (response.statusCode == 200) {
+          print('Product uploaded successfully: ${response.data}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Product added successfully!')),
+          );
+        } else {
+          print('Failed to upload product. Status: ${response.statusCode}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'Failed to add product. Status: ${response.statusCode}')),
+          );
+        }
       } catch (e) {
-        // Print any error to the console
-        print('Error: $e');
+        // Improved error logging
+        if (e is DioException) {
+          print('DioError: ${e.message}');
+          print('DioError: ${e.response?.data}');
+          print('DioError: ${e.response?.statusCode}');
+        } else {
+          print('Error occurred during product upload: $e');
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add product. Please try again.')),
+          SnackBar(content: Text('Error: $e')),
         );
       }
     }
@@ -229,7 +303,9 @@ class _AddProductPageState extends State<AddProductPage> {
                                 );
                               }).toList(),
                               onChanged: (subcategory) {
-                                // Handle subcategory selection
+                                setState(() {
+                                  _selectedSubCategory = subcategory;
+                                });
                               },
                               decoration: InputDecoration(
                                   labelText: 'Select Subcategory'),
@@ -242,7 +318,7 @@ class _AddProductPageState extends State<AddProductPage> {
                       },
                     ),
 
-                    // Product Details
+                    // Product Details Fields
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: TextFormField(
