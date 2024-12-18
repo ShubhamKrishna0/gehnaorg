@@ -1,13 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:gehnaorg/features/add_product/apis/login_api.dart';
-import 'package:gehnaorg/features/add_product/apis/product_api.dart';
 import 'package:gehnaorg/features/add_product/data/repositories/login_repository.dart';
 import 'package:gehnaorg/features/add_product/presentation/bloc/login_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gehnaorg/features/add_product/data/repositories/category_repository.dart';
 import 'package:gehnaorg/features/add_product/data/repositories/subcategory_repository.dart';
 import 'package:gehnaorg/features/add_product/presentation/bloc/add_product_bloc.dart';
-import 'package:gehnaorg/features/add_product/data/repositories/product_repository.dart';
 
 class DependencyInjection {
   static final GetIt _getIt = GetIt.instance;
@@ -28,16 +26,6 @@ class DependencyInjection {
       () => SubCategoryRepository(_getIt<Dio>()),
     );
 
-    // // Register Product API and Repository with Dio
-    // _getIt.registerLazySingleton<ProductApi>(
-    //   () => ProductApi(_getIt<Dio>()),
-    // );
-
-    // _getIt.registerLazySingleton<ProductRepository>(
-    //   () => ProductRepository(_getIt<ProductApi>()),
-    // );
-
-    // Register Login API and Repository
     _getIt.registerLazySingleton<LoginApi>(
       () => LoginApi(_getIt<Dio>()),
     );

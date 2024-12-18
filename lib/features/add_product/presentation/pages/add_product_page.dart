@@ -114,8 +114,6 @@ class _AddProductPageState extends State<AddProductPage> {
           'http://3.110.34.172:8080/admin/upload/Products?category=$categoryCode&subCategory=$subCategoryCode&wholeseller=$identity';
       print("URL for product upload: $url");
       try {
-        print("Preparing images for upload...");
-        // Directly convert images to MultipartFile without compression
         List<MultipartFile> imageFiles = await Future.wait(_selectedImages.map(
           (XFile image) async {
             final bytes = await image.readAsBytes();
@@ -157,8 +155,25 @@ class _AddProductPageState extends State<AddProductPage> {
             SnackBar(content: Text('Product added successfully!')),
           );
 
-          // Reset all fields after successful submission
-          _resetForm();
+          Future.delayed(Duration(seconds: 1), () {
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    AddProductPage(),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  // Apply a fade transition
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+                transitionDuration:
+                    Duration(milliseconds: 500), // Adjust transition speed
+              ),
+            );
+          });
         } else {
           print("Failed with status: ${response.data['message']}");
           ScaffoldMessenger.of(context).showSnackBar(
@@ -177,21 +192,6 @@ class _AddProductPageState extends State<AddProductPage> {
         );
       }
     }
-  }
-
-// Method to reset all form fields
-  void _resetForm() {
-    setState(() {
-      _productNameController.clear();
-      _descriptionController.clear();
-      _wastageController.clear();
-      _weightController.clear();
-      _selectedCategory = null;
-      _selectedSubCategory = null;
-      _selectedGender = null;
-      _selectedKarat = '18K';
-      _selectedImages.clear();
-    });
   }
 
   @override
