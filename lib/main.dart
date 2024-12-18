@@ -40,6 +40,8 @@ class MyApp extends StatelessWidget {
         builder: (context, child) {
           return MaterialApp(
             title: 'GehnaMall',
+            debugShowCheckedModeBanner:
+                false, // Add this line to remove the debug banner
             theme: ThemeData(
               primarySwatch: Colors.blue,
               scaffoldBackgroundColor: Colors.grey[100],
@@ -47,10 +49,8 @@ class MyApp extends StatelessWidget {
             home: BlocBuilder<LoginBloc, LoginState>(
               builder: (context, state) {
                 if (state is LoginSuccess) {
-                  // If login is successful, pass the state to home page
                   return HomePage();
                 } else {
-                  // Otherwise, show the LoginPage
                   return LoginPage();
                 }
               },

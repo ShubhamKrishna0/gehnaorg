@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:gehnaorg/features/add_product/data/models/category.dart';
 import 'package:gehnaorg/features/add_product/data/models/subcategory.dart';
 import 'package:gehnaorg/features/add_product/data/repositories/category_repository.dart';
@@ -115,34 +114,27 @@ class _AddProductPageState extends State<AddProductPage> {
           'http://3.110.34.172:8080/admin/upload/Products?category=$categoryCode&subCategory=$subCategoryCode&wholeseller=$identity';
       print("URL for product upload: $url");
       try {
-        print("Starting image compression...");
-        // Compress images to WebP format and convert them to MultipartFile
+        print("Preparing images for upload...");
+        // Directly convert images to MultipartFile without compression
         List<MultipartFile> imageFiles = await Future.wait(_selectedImages.map(
           (XFile image) async {
             final bytes = await image.readAsBytes();
-            final compressedBytes = await FlutterImageCompress.compressWithList(
-              bytes,
-              minWidth: 800,
-              minHeight: 800,
-              quality: 80,
-              format: CompressFormat.webp,
-            );
-
             return MultipartFile.fromBytes(
-              compressedBytes,
-              filename: 'image_${_selectedImages.indexOf(image)}.webp',
-              contentType: DioMediaType.parse('image/webp'),
+              bytes,
+              filename: image.name,
+              contentType: DioMediaType.parse('image/jpeg'),
             );
           },
         ));
 
-        print("Images compressed, preparing form data...");
+        print("Images ready, preparing form data...");
         final formData = FormData.fromMap({
+          'productName': _productNameController.text,
           'description': _descriptionController.text,
           'wastage': _wastageController.text,
           'weight': _weightController.text,
           'karat': _selectedKarat,
-          'genderCode': _selectedGender == 1 ? 'Male' : 'Female',
+          'genderCode': _selectedGender == 1 ? '1' : '2',
           'images': imageFiles,
         });
 
@@ -158,16 +150,19 @@ class _AddProductPageState extends State<AddProductPage> {
           ),
         );
 
-        if (response.statusCode == 200) {
+        // Correctly access the 'status' field in the response
+        if (response.data['status'] == 0) {
           print("Product added successfully!");
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Product added successfully!')),
           );
+
+          // Reset all fields after successful submission
+          _resetForm();
         } else {
-          print("Failed with status: ${response.statusCode}");
+          print("Failed with status: ${response.data['message']}");
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text('Failed with status: ${response.statusCode}')),
+            SnackBar(content: Text('Failed: ${response.data['message']}')),
           );
         }
       } on DioException catch (e) {
@@ -182,6 +177,21 @@ class _AddProductPageState extends State<AddProductPage> {
         );
       }
     }
+  }
+
+// Method to reset all form fields
+  void _resetForm() {
+    setState(() {
+      _productNameController.clear();
+      _descriptionController.clear();
+      _wastageController.clear();
+      _weightController.clear();
+      _selectedCategory = null;
+      _selectedSubCategory = null;
+      _selectedGender = null;
+      _selectedKarat = '18K';
+      _selectedImages.clear();
+    });
   }
 
   @override
